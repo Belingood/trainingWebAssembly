@@ -1,0 +1,69 @@
+﻿@page "/weather"
+@using BlazorWebAssembly.Components
+@inject WeatherService weatherService
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+<div style="position: relative;">
+    
+    @code {
+        List<WeatherService.WeatherData> weatherDataList = new List<WeatherService.WeatherData>();
+
+        protected override async Task OnInitializedAsync()
+        {
+            var array = new List<(string, string)>
+            {
+                ("51.1089776", "17.0326689"),   // Wrocław
+                ("52.2319581", "21.0067249"),   // Warsaw
+                ("51.7687323", "19.4569911"),   // Łódź
+                ("59.9133301", "10.7389701"),   // Oslo
+                ("34.6937569", "135.5014539"),  // Osaka
+                ("51.5073219", "-0.1276474"),   // London
+                ("-33.8698439", "151.2082848"), // Sydney
+                ("32.7762719", "-96.7968559"),  // Dallas
+                ("32.7174202", "-117.1627728"), // San Diego
+                ("27.9477595", "-82.458444")    // Tampa
+            };
+
+            foreach (var (lat, lon) in array)
+            {
+                var weatherData = await weatherService.GetWeatherData(lat, lon);
+                weatherDataList.Add(weatherData);
+                StateHasChanged();
+            }
+        }
+
+    }
+
+    @foreach (var weatherData in weatherDataList)
+    {
+        var cityName = weatherData.Name;
+        var temperature = weatherData.Main.Temperature;
+        var humidity = weatherData.Main.Humidity;
+        var clouds = weatherData.Clouds.allClouds;
+        var wind = weatherData.Wind.windSpeed;
+        var pressure = weatherData.Main.Pressure;
+        var weatherIcon = weatherData.weatherArray[0].weatherIcon;
+
+        <div style="float: left; margin: 10px 15px; border: solid 1px #d7d7d7; padding: 10px;">
+            <div style="font-size: medium; font-weight: bold; margin-bottom: 0px;">@cityName</div>
+            <div style="float: left; width: 130px;">
+                <div style="display: block; clear: left;">
+                    <div style="float: left;" title="Weather in @cityName">
+                        <img height="45" width="45" style="border: medium none; width: 45px; height: 45px; background: url('http://openweathermap.org/img/w/@(weatherIcon).png') repeat scroll 0% 0% transparent;" alt="title" src="http://openweathermap.org/images/transparent.png"/>
+                    </div>
+                    <div style="float: left;">
+                        <div style="display: block; clear: left; font-size: medium; font-weight: bold; padding: 0pt 3pt;" title="Current Temperature">@temperature°C</div>
+                        <div style="display: block; width: 85px; overflow: visible;"></div>
+                    </div>
+                </div>
+                <div style="display: block; clear: left; font-size: small;">Clouds: @clouds%</div>
+                <div style="display: block; clear: left; color: gray; font-size: x-small;">Humidity: @humidity%</div>
+                <div style="display: block; clear: left; color: gray; font-size: x-small;">Wind: @wind m/s</div>
+                <div style="display: block; clear: left; color: gray; font-size: x-small;">Pressure: @pressure hPa</div>
+            </div>
+        </div>
+    }
+</div>
